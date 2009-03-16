@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  JPWeatherSatelliteScreenlet (c) SAKURAI Masashi 2009 <m.sakurai@dream.com>
+#  JPWeatherSatelliteScreenlet (c) SAKURAI Masashi 2009 <m.sakurai@kiwanami.net>
 #
 # INFO:
 # - Show the weather satellite images.
@@ -55,7 +55,7 @@ class JPWeatherSatelliteScreenlet (screenlets.Screenlet):
 		self.add_default_menuitems()
 		self.add_options_group('JPWeatherSatellite', 'JPWeatherSatellite-related settings ...')
 		self.add_option(StringOption('JPWeatherSatellite', 'image_type', self.image_type, 'Image Type', 'infrared / visible / watervapor'))
-		self.add_option(IntOption('JPWeatherSatellite', 'update_interval', self.update_interval,'update interval time (minutes)', 'update interval time (minutes)',min=1, max=300),realtime=True)
+		self.add_option(IntOption('JPWeatherSatellite', 'update_interval', self.update_interval,'update interval time (minutes)', 'update interval time (minutes)',min=1, max=300),realtime=False)
                 self.update_image()
                 self.set_update_interval(self.update_interval)
 
@@ -76,19 +76,16 @@ class JPWeatherSatelliteScreenlet (screenlets.Screenlet):
                                 self.__has_updated = False
 		return True
 
-	def __setattr__ (self, name, value):
+        def on_after_set_atribute(self,name, value):
+                print name + ' is going to change from ' + str(value)
 		if name == "local_code":
 			if value != '' and value != self.local_code:
                                 print "Setting local_code for JPWeatherSatelliteScreenlet: %s" % value
-                                screenlets.Screenlet.__setattr__(self, name, value)
                                 self.update_image()
                 elif name == "update_interval":
 			if value <= 0:
                                 value = 1
-                        screenlets.Screenlet.__setattr__(self, name, value)
                         self.set_update_interval(value)
-		else:
-			screenlets.Screenlet.__setattr__(self, name, value)
 
         def update_image(self):
                 curtime = datetime.now() + timedelta(minutes=-30)
