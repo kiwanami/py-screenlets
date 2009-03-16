@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-#  JPWeatherRadarScreenlet (c) SAKURAI Masashi 2009 <m.sakurai@dream.com>
+#  JPWeatherRadarScreenlet (c) SAKURAI Masashi 2009 <m.sakurai@kiwanami.net>
 #
 # INFO:
 # - Show the weather radar images.
 # 
+
 
 from __future__ import with_statement
 
@@ -57,7 +58,7 @@ class JPWeatherRadarScreenlet (screenlets.Screenlet):
 		self.add_option(StringOption('JPWeatherRadar', 'local_code', 
 			self.local_code, 'Local Code', 
 			'Area code for the radar image : http://www.jma.go.jp/jp/radnowc/ ...'))
-		self.add_option(IntOption('JPWeatherRadar', 'update_interval', self.update_interval,'update interval time (minutes)', 'update interval time (minutes)',min=1, max=300),realtime=True)
+		self.add_option(IntOption('JPWeatherRadar', 'update_interval', self.update_interval,'update interval time (minutes)', 'update interval time (minutes)',min=1, max=300),realtime=False)
                 self.update_image()
                 self.set_update_interval(self.update_interval)
 
@@ -78,19 +79,16 @@ class JPWeatherRadarScreenlet (screenlets.Screenlet):
                                 self.__has_updated = False
 		return True
 
-	def __setattr__ (self, name, value):
+        def on_after_set_atribute(self,name, value):
+		print name + ' is going to change from ' + str(value)
 		if name == "local_code":
 			if value != '' and value != self.local_code:
                                 print "Setting local_code for JPWeatherRadarScreenlet: %s" % value
-                                screenlets.Screenlet.__setattr__(self, name, value)
                                 self.update_image()
                 elif name == "update_interval":
 			if value <= 0:
                                 value = 1
-                        screenlets.Screenlet.__setattr__(self, name, value)
                         self.set_update_interval(value)
-		else:
-			screenlets.Screenlet.__setattr__(self, name, value)
 
         def update_image(self):
                 curtime = datetime.now() + timedelta(minutes=-10)
