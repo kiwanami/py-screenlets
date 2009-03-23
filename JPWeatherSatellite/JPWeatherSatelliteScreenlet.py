@@ -43,6 +43,7 @@ class JPWeatherSatelliteScreenlet (screenlets.Screenlet):
 	# editable options
         base_url = 'http://www.jma.go.jp/jp/gms/imgs/0/%(type)s/1/%(time)s-00.png'
         image_type = 'infrared'
+        __image_types = ['infrared','visible','watervapor']
         update_interval = 120
 	
 	# --------------------------------------------------------------------------
@@ -54,7 +55,7 @@ class JPWeatherSatelliteScreenlet (screenlets.Screenlet):
 		self.theme_name = "default"
 		self.add_default_menuitems()
 		self.add_options_group('JPWeatherSatellite', 'JPWeatherSatellite-related settings ...')
-		self.add_option(StringOption('JPWeatherSatellite', 'image_type', self.image_type, 'Image Type', 'infrared / visible / watervapor'))
+		self.add_option(StringOption('JPWeatherSatellite', 'image_type', self.image_type, 'Image Type', 'infrared / visible / watervapor',choices = self.__image_types))
 		self.add_option(IntOption('JPWeatherSatellite', 'update_interval', self.update_interval,'update interval time (minutes)', 'update interval time (minutes)',min=1, max=300),realtime=False)
                 self.update_image()
                 self.set_update_interval(self.update_interval)
@@ -78,10 +79,9 @@ class JPWeatherSatelliteScreenlet (screenlets.Screenlet):
 
         def on_after_set_atribute(self,name, value):
                 print name + ' is going to change from ' + str(value)
-		if name == "local_code":
-			if value != '' and value != self.local_code:
-                                print "Setting local_code for JPWeatherSatelliteScreenlet: %s" % value
-                                self.update_image()
+		if name == "image_type":
+                        print "Setting image_type for JPWeatherSatelliteScreenlet: %s" % value
+                        self.update_image()
                 elif name == "update_interval":
 			if value <= 0:
                                 value = 1
