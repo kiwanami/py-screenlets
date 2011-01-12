@@ -184,6 +184,7 @@ class JPWeatherRadarScreenlet (screenlets.Screenlet):
                         self.__click_pos[1] = -1
                         return True
                 if event.button == 1:
+                        self.update_image()
                         self.__click_pos[0] = event.x
                         self.__click_pos[1] = event.y
 		return False
