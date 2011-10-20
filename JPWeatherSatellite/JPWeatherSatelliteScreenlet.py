@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  JPWeatherSatelliteScreenlet (c) SAKURAI Masashi 2009 <m.sakurai@kiwanami.net>
+#  JPWeatherSatelliteScreenlet (c) SAKURAI Masashi 2009 <m.sakurai at kiwanami.net>
 #
 # INFO:
 # - Show the weather satellite images.
@@ -101,8 +101,9 @@ class JPWeatherSatelliteScreenlet (screenlets.Screenlet):
                         self.set_update_interval(value)
 
         def update_image(self):
+                print 'update_image : current_url = %s' % self.__current_url
                 curtime = datetime.now() + timedelta(minutes=-30)
-                tmin = '00' if curtime.minute < 30 else '30'
+                tmin = '00' if curtime.minute < 30 else '15'
                 timedata = (curtime.year,curtime.month,curtime.day,curtime.hour,tmin)
                 timestr = '%04d%02d%02d%02d%s' % timedata
                 nurl = self.base_url % {'type':self.image_type,'time':timestr}

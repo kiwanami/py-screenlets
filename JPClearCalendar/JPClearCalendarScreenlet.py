@@ -9,7 +9,7 @@
 # Thank you for using free software!
 
 #  ClearCalendarScreenlet (c) Whise aka Helder Fraga
-#  JPClearCalendarScreenlet (c) SAKURAI Masashi <m.sakurai@kiwanami.net>
+#  JPClearCalendarScreenlet (c) SAKURAI Masashi <m.sakurai at kiwanami.net>
 
 
 import screenlets
