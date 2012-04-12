@@ -54,7 +54,7 @@ class JPWeatherSatelliteScreenlet (screenlets.Screenlet):
         __click_pos = [-1,-1]
 	
 	# editable options
-        base_url = 'http://www.jma.go.jp/jp/gms/imgs/0/%(type)s/1/%(time)s-00.png'
+        base_url = 'http://www.jma.go.jp/jp/gms/imgs%(color)s/0/%(type)s/1/%(time)s-00.png'
         image_type = 'infrared'
         __image_types = ['infrared','visible','watervapor']
         update_interval = 120
@@ -103,60 +103,64 @@ class JPWeatherSatelliteScreenlet (screenlets.Screenlet):
         def update_image(self):
                 print 'update_image : current_url = %s' % self.__current_url
                 curtime = datetime.now() + timedelta(minutes=-30)
-                tmin = '00' if curtime.minute < 30 else '15'
-                timedata = (curtime.year,curtime.month,curtime.day,curtime.hour,tmin)
-                timestr = '%04d%02d%02d%02d%s' % timedata
-                nurl = self.base_url % {'type':self.image_type,'time':timestr}
-                if self.__current_url == nurl:
-                        return True
-                self.__current_url = nurl
-
-		try:
-                        tfile = urlretrieve(self.__current_url)
-                        if tfile and tfile[1].gettype().find('image') >= 0:
-                                print "image [%s] from %s" % (tfile,nurl)
-                                img = cairo.ImageSurface.create_from_png(tfile[0])
-                                if img:
-                                        if self.__current_image:
-                                                self.__current_image.finish()
-                                                del self.__current_image
-                                        self.width = img.get_width()
-                                        self.height = img.get_height()
-                                        self.__current_image = img
-                                        self.__timestr = '%04d/%02d/%02d %02d:%s' % timedata
-                                        self.redraw_canvas()
-                                        self.set_update_interval(self.update_interval)
-                                        return True
-                        else:
-                                with file(tfile[0]) as f:
-                                        print f.read()
-                        self.__current_url = None
-                        self.set_update_interval(1)
-		except Exception, ex:
-			print 'Failed to load image "%s": %s (only PNG images supported yet)' % (self.__current_url, ex)
-                        traceback.print_exc()
-                finally:
-                        urlcleanup()
-		return False
-		
-	# --------------------------------------------------------------------------
-	# Screenlet handlers
-	# --------------------------------------------------------------------------
-	
-	def on_drag_enter (self, drag_context, x, y, timestamp):
-		self.redraw_canvas()
-	
-	def on_drag_leave (self, drag_context, timestamp):
-		self.redraw_canvas()
-	
-	def on_draw (self, ctx):
-		ctx.set_operator(cairo.OPERATOR_OVER)
-		ctx.scale(self.scale, self.scale)
-                ctx.save()	
-		if self.dragging_over:
-			ctx.set_operator(cairo.OPERATOR_XOR)
-		if self.__current_image:
-			ctx.set_source_surface(self.__current_image, 0, 0)
+                for trial in range(10):
+	                tmin = '00' if curtime.minute < 30 else '15'
+                        timedata = (curtime.year,curtime.month,curtime.day,curtime.hour,tmin)
+                        timestr = '%04d%02d%02d%02d%s' % timedata
+                        colorsig = '_c' if self.image_type == 'infrared' else ''
+                        nurl = self.base_url % {'type':self.image_type,'time':timestr,'color':colorsig}
+                        if self.__current_url == nurl:
+                                return True
+                        self.__current_url = nurl
+        
+                        try:
+                                tfile = urlretrieve(self.__current_url)
+                                if tfile and tfile[1].gettype().find('image') >= 0:
+                                        print "image [%s] from %s" % (tfile,nurl)
+                                        img = cairo.ImageSurface.create_from_png(tfile[0])
+                                        if img:
+                                                if self.__current_image:
+                                                        self.__current_image.finish()
+                                                        del self.__current_image
+                                                self.width = img.get_width()
+                                                self.height = img.get_height()
+                                                self.__current_image = img
+                                                self.__timestr = '%04d/%02d/%02d %02d:%s' % timedata
+                                                self.redraw_canvas()
+                                                self.set_update_interval(self.update_interval)
+                                                return True
+                                else:
+                                        with file(tfile[0]) as f:
+                                                print f.read()
+                        except Exception, ex:
+                                print 'Failed to load image "%s": %s (only PNG images supported yet)' % (self.__current_url, ex)
+                                traceback.print_exc()
+                                return False
+                        finally:
+                                urlcleanup()
+                        curtime -= timedelta(minutes=-30)
+                self.__current_url = None
+                self.set_update_interval(1)
+                return False
+                        
+        # --------------------------------------------------------------------------
+        # Screenlet handlers
+        # --------------------------------------------------------------------------
+        
+        def on_drag_enter (self, drag_context, x, y, timestamp):
+                self.redraw_canvas()
+        
+        def on_drag_leave (self, drag_context, timestamp):
+                self.redraw_canvas()
+        
+        def on_draw (self, ctx):
+                ctx.set_operator(cairo.OPERATOR_OVER)
+                ctx.scale(self.scale, self.scale)
+                ctx.save()        
+                if self.dragging_over:
+                        ctx.set_operator(cairo.OPERATOR_XOR)
+                if self.__current_image:
+                        ctx.set_source_surface(self.__current_image, 0, 0)
                         ctx.paint()
                         self.draw_title(ctx,self.__timestr)
                 else:
@@ -175,10 +179,10 @@ class JPWeatherSatelliteScreenlet (screenlets.Screenlet):
                 self.draw_text(ctx, title, 5, 20,
                                font_title,25,self.width-20,pango.ALIGN_LEFT)
 
-	def on_draw_shape (self, ctx):
-		self.on_draw(ctx)
+        def on_draw_shape (self, ctx):
+                self.on_draw(ctx)
 
-	def on_mouse_down (self, event):
+        def on_mouse_down (self, event):
                 if event.button == 1 and event.x == self.__click_pos[0] and event.y == self.__click_pos[1]:
                         webbrowser.open_new_tab('http://www.jma.go.jp/jp/gms/')
                         self.__click_pos[0] = -1
@@ -188,8 +192,8 @@ class JPWeatherSatelliteScreenlet (screenlets.Screenlet):
                         self.update_image()
                         self.__click_pos[0] = event.x
                         self.__click_pos[1] = event.y
-		return False
+                return False
 
 if __name__ == "__main__":
-	import screenlets.session
-	screenlets.session.create_session(JPWeatherSatelliteScreenlet)
+        import screenlets.session
+        screenlets.session.create_session(JPWeatherSatelliteScreenlet)
