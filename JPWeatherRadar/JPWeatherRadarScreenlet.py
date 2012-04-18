@@ -78,23 +78,23 @@ class JPWeatherRadarScreenlet (screenlets.Screenlet):
 		"""Set the update-time in minutes."""
 		if self.__timeout:
 			gobject.source_remove(self.__timeout)
-                print "update interval : %s min" % interval
+                #print "update interval : %s min" % interval
 		self.__timeout = gobject.timeout_add(interval*60*1000, self.update)
 
 	def update (self):
 		if self.__has_updated == False :
 			self.__has_updated = True
                         try:
-                                print "timer event : %s" % datetime.now()
+                                #print "timer event : %s" % datetime.now()
                                 self.update_image()
                         finally:
                                 self.__has_updated = False
 		return True
 
         def on_after_set_atribute(self,name, value):
-		print name + ' is going to change from ' + str(value)
+		#print name + ' is going to change from ' + str(value)
 		if name == "local_code":
-                        print "Setting local_code for JPWeatherRadarScreenlet: %s" % value
+                        #print "Setting local_code for JPWeatherRadarScreenlet: %s" % value
                         self.update_image()
                 elif name == "update_interval":
 			if value <= 0:
@@ -113,7 +113,7 @@ class JPWeatherRadarScreenlet (screenlets.Screenlet):
 		try:
                         tfile = urlretrieve(self.__current_url)
                         if tfile and tfile[1].gettype().find('image') >= 0:
-                                print "image [%s] from %s" % (tfile,nurl)
+                                #print "image [%s] from %s" % (tfile,nurl)
                                 img = cairo.ImageSurface.create_from_png(tfile[0])
                                 if img:
                                         if self.__current_image:

@@ -77,23 +77,23 @@ class JPWeatherSatelliteScreenlet (screenlets.Screenlet):
 		"""Set the update-time in minutes."""
 		if self.__timeout:
 			gobject.source_remove(self.__timeout)
-                print "update interval : %s" % interval
+                #print "update interval : %s" % interval
 		self.__timeout = gobject.timeout_add(interval*60*1000, self.update)
 
 	def update (self):
 		if self.__has_updated == False :
 			self.__has_updated = True
                         try:
-                                print "timer event : %s" % datetime.now()
+                                #print "timer event : %s" % datetime.now()
                                 self.update_image()
                         finally:
                                 self.__has_updated = False
 		return True
 
         def on_after_set_atribute(self,name, value):
-                print name + ' is going to change from ' + str(value)
+                #print name + ' is going to change from ' + str(value)
 		if name == "image_type":
-                        print "Setting image_type for JPWeatherSatelliteScreenlet: %s" % value
+                        #print "Setting image_type for JPWeatherSatelliteScreenlet: %s" % value
                         self.update_image()
                 elif name == "update_interval":
 			if value <= 0:
@@ -101,7 +101,7 @@ class JPWeatherSatelliteScreenlet (screenlets.Screenlet):
                         self.set_update_interval(value)
 
         def update_image(self):
-                print 'update_image : current_url = %s' % self.__current_url
+                #print 'update_image : current_url = %s' % self.__current_url
                 curtime = datetime.now() + timedelta(minutes=-30)
                 for trial in range(10):
 	                tmin = '00' if curtime.minute < 30 else '15'
@@ -116,7 +116,7 @@ class JPWeatherSatelliteScreenlet (screenlets.Screenlet):
                         try:
                                 tfile = urlretrieve(self.__current_url)
                                 if tfile and tfile[1].gettype().find('image') >= 0:
-                                        print "image [%s] from %s" % (tfile,nurl)
+                                        #print "image [%s] from %s" % (tfile,nurl)
                                         img = cairo.ImageSurface.create_from_png(tfile[0])
                                         if img:
                                                 if self.__current_image:
